@@ -17,4 +17,5 @@ export AFL=$WORKDIR/afl
 export AFL_PATH=$WORKDIR/afl
 
 export AFLSMART=$WORKDIR/aflsmart
-export PATH=$PATH:$AFL:$HORSEFUZZ
+
+export PATH=$PATH:$AFL:$HORSEFUZZ:$AFLTEAM

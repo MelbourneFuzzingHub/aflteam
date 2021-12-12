@@ -12,6 +12,21 @@ Second, our graph partitioning algorithm divides the global program search space
 Finally our search algorithm prioritizes these sub-search-spaces (i.e., tasks) and
 explores them to maximize code coverage and number of bugs found.
 
+# Licences
+
+AFLTeam is licensed under [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+
+# Citing AFLTeam
+AFLTeam has been published at the 36th IEEE/ACM International Conference on Automated Software Engineering (ASE) 2021 as a NIER paper.
+
+```
+@inproceedings{AFLTeam,
+author={Van{-}Thuan Pham and Manh{-}Dung Nguyen and Quang{-}Trung Ta and Toby Murray and Benjamin I.P. Rubinstein},
+title={Towards Systematic and Dynamic Task Allocation for Collaborative Parallel Fuzzing},
+booktitle={Proceedings of the 36th IEEE/ACM International Conference on Automated Software Engineering : NIER Track},
+year={2021},}
+```
+
 # Tutorial - Fuzzing LibPNG with AFLTeam (Tested on Ubuntu 18.04 64-bit LLVM/Clang 6.0)
 
 Please follow the steps below to fuzz LibPNG with AFLTeam. The same steps can be followed to run experiments
