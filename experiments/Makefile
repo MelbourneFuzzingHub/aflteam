@@ -10,7 +10,7 @@ $(info The env variable WORKDIR is set to: $(WORKDIR))
 
 prerequisites:
 	sudo apt-get update
-	sudo apt-get install --fix-missing -y build-essential autoconf automake cmake nasm git htop tmux libtool zlib1g-dev gdb flex bison cmake nasm python-pip python3-pip texinfo && \
+	sudo apt-get install --fix-missing -y build-essential autoconf automake cmake nasm git htop tmux libtool zlib1g-dev gdb flex bison cmake nasm python-pip python3-pip texinfo clang && \
 	sudo pip install wllvm && \
 	sudo pip3 install networkx psutil pydot
 

@@ -11,7 +11,7 @@ import globals
 
 #Reference: J. A. Lukes, "Efficient Algorithm for the Partitioning of Trees," in IBM Journal of Research and Development
 def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, covered_funcs, K, out_folder):
-  logging.debug("do_partitioning_lukes starts at: " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+  logging.debug("do_partitioning_lukes starts at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
   #Get minimum arborescence
   logging.debug("Running minimum_spanning_arborescence algorithm ...")
   MSA = nx.minimum_spanning_arborescence(CG)
@@ -29,15 +29,19 @@ def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, covered_
 
     MSA.nodes[v]['score'] = score #set score with no normalization yet
     if globals.VERBOSE_LEVEL > 2:
-      logging.debug("Function " + v_fname_dict[v] + "'s score: " + str(score) + ", b_pre: " + str(CG.nodes[v]['bcovered_pre']) + ", b_cur: " + str(CG.nodes[v]['bcovered_cur']) + ", b_total: " + str(CG.nodes[v]['btotal']))
+      logging.debug("Function %s score: %d, b_pre: %d, b_cur: %d, b_total: %d", v_fname_dict[v], score, CG.nodes[v]['bcovered_pre'], CG.nodes[v]['bcovered_cur'], CG.nodes[v]['btotal'])
 
+  scores.sort()
   median_score = math.floor(statistics.median(scores))
   mean_score = math.floor(statistics.mean(scores))
-  logging.debug("Median score: " + str(median_score) + ", mean score: " + str(mean_score) + ", max score: " + str(max(scores)))
+  logging.debug("Median score: %d, mean score: %d, max score: %d", median_score, mean_score, max(scores))
+  if globals.VERBOSE_LEVEL > 2:
+    logging.debug(str(("List of scores: ",scores)))
 
   #normalize the node score on MSA before partitioning using kind-of ReLU-N function
   #where N is a upper threshold
   #TODO: try out other threshold values
+
   total_score = 0
   for v in MSA.nodes:
     threshold = median_score + mean_score
@@ -56,13 +60,13 @@ def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, covered_
   logging.debug("Grouping " + str(len(plist)) + " partitions into " + str(K) + " tasks")
   tasks = helpers.group_tasks(plist, K)
   
-  logging.debug("#partitions: " + str(len(tasks)))
+  logging.debug("#partitions: %d", len(tasks))
   tIndex = 0
   for task in tasks:
     tIndex = tIndex + 1
     fout = open(out_folder + "/task_" + str(tIndex) + ".txt" ,'w')
     if globals.VERBOSE_LEVEL > 2:
-      logging.debug("Partition " + str(tIndex))
+      logging.debug("Partition %d", tIndex)
 
     outputSet = set()
     #some subtask(s) might not be reachable yet (i.e., no test input can reach functions in a task)
@@ -80,7 +84,7 @@ def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, covered_
 
         functionName = v_fname_dict[v]
         if globals.VERBOSE_LEVEL > 2:
-          logging.debug("Node: " + functionName)
+          logging.debug("Node: %s", functionName)
         
         try:
           for (srcFileName, hashId) in fname_src_dict[functionName]:
@@ -109,5 +113,5 @@ def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, covered_
   #write to dot file for debugging
   nx.drawing.nx_pydot.write_dot(MSA, os.path.join(out_folder, "msa.dot"))
 
-  logging.debug("do_partitioning_lukes ends at: " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+  logging.debug("do_partitioning_lukes ends at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
   return

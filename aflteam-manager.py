@@ -84,9 +84,9 @@ def main(binary_name, afl_binary, horsefuzz_binary, profiling_binary, gcov_binar
   #Append common and specific options together to form a full fuzzing command
   #for the fuzzing monitor
   fuzz_command = "afl-fuzz " + specific_fuzzing_options + put_command
-  logging.debug("Monitor command: " + fuzz_command)
+  logging.debug("Monitor command: %s", fuzz_command)
   pmonitor = subprocess.Popen(fuzz_command.split(" "))
-  logging.debug("Monitor PID: " + str(pmonitor.pid))
+  logging.debug("Monitor PID: %d", pmonitor.pid)
 
   #Start other fuzzing instances
   #The fuzzing instances run normal afl-fuzz in the exploration phase 
@@ -95,7 +95,7 @@ def main(binary_name, afl_binary, horsefuzz_binary, profiling_binary, gcov_binar
   exploitMode = False
   curRound = 1
   while True:
-    logging.debug("Round_" + str(curRound) + ", Exploitation: " + str(exploitMode))
+    logging.debug("Round_%d, Exploitation: %s", curRound, exploitMode)
 
     #Step-0 (optional). Save results from the previous round & clean results
     if curRound > 1:
@@ -117,12 +117,12 @@ def main(binary_name, afl_binary, horsefuzz_binary, profiling_binary, gcov_binar
       #Save fuzzing instance-specific artifacts
       for index in range(1, cores):
         fuzzerDir = os.path.join(activeDir, "fuzzer_" + str(index + (cores - 1) * (curRound - 2)))
-        logging.debug("Saving: " + fuzzerDir)
+        logging.debug("Saving: %s", fuzzerDir)
         fuzzerLog = fuzzerDir + ".log"
         #save fuzzer's artifacts
         if os.path.exists(fuzzerDir):
           shutil.move(fuzzerDir, backupDir)
-          logging.debug("Saving to: " + backupDir)
+          logging.debug("Saving to: %s", backupDir)
         #save fuzzer log
         if os.path.exists(fuzzerLog):
           shutil.move(fuzzerLog, backupDir)
@@ -144,18 +144,18 @@ def main(binary_name, afl_binary, horsefuzz_binary, profiling_binary, gcov_binar
         copyfile(os.path.join(seed_corpus, seed), os.path.join(seedDir, "seed_" + str(index)))
         index = index + 1
     
-    logging.debug("Is CG acyclic?: " + str(nx.is_directed_acyclic_graph(CG)))
+    logging.debug("Is CG acyclic?: %s", nx.is_directed_acyclic_graph(CG))
 
     #Step-2. Do task generation in exploitation mode
     if exploitMode:
       #Update callgraph first     
-      logging.debug("Nodes-before-update: " + str(len(CG.nodes)))
-      logging.debug("Edges-before-update: " + str(len(CG.edges)))
+      logging.debug("Nodes-before-update: %d", len(CG.nodes))
+      logging.debug("Edges-before-update: %d", len(CG.edges))
       covered_funcs = nxp.update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v_dict, profiling_binary, gcov_binary, gcov_folder, activeDir + "/monitor/queue")
-      logging.debug("Nodes-after-update: " + str(len(CG.nodes)))
-      logging.debug("Edges-after-update: " + str(len(CG.edges)))
+      logging.debug("Nodes-after-update: %d", len(CG.nodes))
+      logging.debug("Edges-after-update: %d", len(CG.edges))
     
-      logging.debug("Is CG still acyclic?: " + str(nx.is_directed_acyclic_graph(CG)))
+      logging.debug("Is CG still acyclic?: %s", nx.is_directed_acyclic_graph(CG))
 
       #prune callgraph and add bbcount
       nxp.prune_callgraph(CG, main_v, v_fname_dict, fname_v_dict, fname_bbs_dict)
@@ -205,12 +205,12 @@ def main(binary_name, afl_binary, horsefuzz_binary, profiling_binary, gcov_binar
 
         fuzz_command = "afl-fuzz " + specific_fuzzing_options + put_command
       
-      logging.debug("Fuzzer command: " + fuzz_command)
+      logging.debug("Fuzzer command: %s", fuzz_command)
 
       #Start fuzzing
       logfile = open(activeDir + '/fuzzer_' + str(index + (cores - 1) * (curRound - 1)) + '.log','w')
       p = subprocess.Popen(fuzz_command.split(" "), stdout=logfile)
-      logging.debug("PID: " + str(p.pid))
+      logging.debug("PID: %d", p.pid)
       popens.append(p)
       time.sleep(5)
 

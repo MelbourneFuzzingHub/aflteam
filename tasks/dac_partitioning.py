@@ -4,7 +4,7 @@ def split(a, n):
   k, m = divmod(len(a), n)
   return (a[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
 
-#divide and conquer partitioning
+#a random partitioning approach
 def partition(CG, v_fname_dict, main_v, fname_src_dict, K, out_folder, is_shuffle=True):
   #divide the graph nodes into smaller sets
   divided_sets = []

@@ -17,7 +17,7 @@ class ParsingState(Enum):
 
 #extract callgraph given a .dot file
 def extract_callgraph(dot_file):
-  logging.debug("extract_callgraph starts at: " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+  logging.debug("extract_callgraph starts at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
   #Get the initial callgraph
   #import the call graph from the .dot file
   CG = nx.DiGraph(nx.drawing.nx_pydot.read_dot (dot_file))
@@ -52,7 +52,7 @@ def extract_callgraph(dot_file):
     print("Error! No function main is found in the call graph.")
     exit()
 
-  logging.debug("extract_callgraph ends at: " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+  logging.debug("extract_callgraph ends at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
   return (CG, v_fname_dict, fname_v_dict, main_v)
 
 #remove a node from a given graph and associated dictionaries
@@ -63,10 +63,10 @@ def remove_node(CG, v, v_fname_dict, fname_v_dict):
 
 #prune callgraph
 def prune_callgraph(CG, main_v, v_fname_dict, fname_v_dict, fname_bbs_dict):
-  logging.debug("prune_callgraph starts at: " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+  logging.debug("prune_callgraph starts at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
-  logging.debug("Nodes-before-prunning-1: " + str(len(CG.nodes)))
-  logging.debug("Edges-before-prunning-1: " + str(len(CG.edges)))
+  logging.debug("Nodes-before-prunning-1: %d", len(CG.nodes))
+  logging.debug("Edges-before-prunning-1: %d", len(CG.edges))
   #delete nodes that have no bb count information
   deleted_nodes = []
   try:
@@ -83,14 +83,14 @@ def prune_callgraph(CG, main_v, v_fname_dict, fname_v_dict, fname_bbs_dict):
   for v in deleted_nodes:
     try:
       if globals.VERBOSE_LEVEL > 1:
-        logging.debug("Deleted-phase-1: " + v_fname_dict[v])
+        logging.debug("Deleted-phase-1: %s", v_fname_dict[v])
       globals.spare_functions_set.remove(v_fname_dict[v])
     except KeyError:
       pass
     remove_node(CG, v, v_fname_dict, fname_v_dict)
 
-  logging.debug("Nodes-before-prunning-2: " + str(len(CG.nodes)))
-  logging.debug("Edges-before-prunning-2: " + str(len(CG.edges)))
+  logging.debug("Nodes-before-prunning-2: %d", len(CG.nodes))
+  logging.debug("Edges-before-prunning-2: %d", len(CG.edges))
   #And delete disconnected nodes
   deleted_nodes = []
   try:
@@ -102,12 +102,12 @@ def prune_callgraph(CG, main_v, v_fname_dict, fname_v_dict, fname_bbs_dict):
 
   for v in deleted_nodes:
     if globals.VERBOSE_LEVEL > 1:
-      logging.debug("Deleted-phase-2: " + v_fname_dict[v])
+      logging.debug("Deleted-phase-2: %s", v_fname_dict[v])
     globals.spare_functions_set.add(v_fname_dict[v])
     remove_node(CG, v, v_fname_dict, fname_v_dict)
 
-  logging.debug("Nodes-before-prunning-3: " + str(len(CG.nodes)))
-  logging.debug("Edges-before-prunning-3: " + str(len(CG.edges)))
+  logging.debug("Nodes-before-prunning-3: %d", len(CG.nodes))
+  logging.debug("Edges-before-prunning-3: %d", len(CG.edges))
   #And delete all nodes that are not reachable from main
   deleted_nodes = []
   try:
@@ -126,13 +126,13 @@ def prune_callgraph(CG, main_v, v_fname_dict, fname_v_dict, fname_bbs_dict):
 
   for v in deleted_nodes:
     if globals.VERBOSE_LEVEL > 1:
-      logging.debug("Deleted-phase-3: " + v_fname_dict[v])
+      logging.debug("Deleted-phase-3: %s", v_fname_dict[v])
     globals.spare_functions_set.add(v_fname_dict[v])
     remove_node(CG, v, v_fname_dict, fname_v_dict)
 
-  logging.debug("Nodes-after-all-prunning: " + str(len(CG.nodes)))
-  logging.debug("Edges-after-all-prunning: " + str(len(CG.edges)))
-  logging.debug("prune_callgraph ends at: " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+  logging.debug("Nodes-after-all-prunning: %d", len(CG.nodes))
+  logging.debug("Edges-after-all-prunning: %d", len(CG.edges))
+  logging.debug("prune_callgraph ends at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
 #check and insert functions from tmpFunctions list to Functions list
 def update_function_list(Functions, tmpFunctions):
@@ -162,7 +162,7 @@ def update_function_list(Functions, tmpFunctions):
 
 #update callgraph based on function call profiling information
 def update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v_dict, profiling_binary, gcov_binary, gcov_folder, seed_dir):
-  logging.debug("update_callgraph starts at: " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+  logging.debug("update_callgraph starts at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
   #keep track all functions that have been dynamically covered
   covered_funcs = []
 
@@ -177,11 +177,11 @@ def update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v
     for seed in os.listdir(seed_dir):
       #only run profiling of coverage-increasing inputs
       if ("+cov" not in seed) and ("orig" not in seed):
-        #logging.debug("Skip not +cov: " + seed)
+        #logging.debug("Skip not +cov: %s", seed)
         continue
       #skip the profiled ones
       if seed in globals.profiled_seeds:
-        #logging.debug("Skip profiled: " + seed)
+        #logging.debug("Skip profiled: %s", seed)
         continue
 
       globals.profiled_seeds.append(seed)
@@ -352,7 +352,7 @@ def update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v
         CG.nodes[v]['bcovered_pre'] = CG.nodes[v]['bcovered_cur']
         CG.nodes[v]['bcovered_cur'] = f.bcovered
 
-  logging.debug("update_callgraph ends at: " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+  logging.debug("update_callgraph ends at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
   return covered_funcs
 
 #calculate total_bbs of all nodes reachable from main
