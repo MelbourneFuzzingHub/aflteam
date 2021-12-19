@@ -315,6 +315,9 @@ def update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v
 
         globals.profiled_seeds.append(seed)
 
+      if globals.VERBOSE_LEVEL > 2:
+        logging.debug("isFirstRun: %s, seed to be executed: %s", isFirstRun, seed)
+
       if os.path.isfile(os.path.join(seed_dir, seed)):
         #run profiling binary
         command = "timeout -k 0 5s " + profiling_binary + pre_args + " " + os.path.join(seed_dir, seed) + post_args

@@ -8,7 +8,7 @@ class Function:
     self.bcovered = bcovered
 
 #global variables
-VERBOSE_LEVEL = 3 #set this to a higher value to see more verbose info in aflteam.log
+VERBOSE_LEVEL = 1 #set this to a higher value to see more verbose info in aflteam.log
                   #current max level is 3
 
 #FIXME: we should not hardcode the colors list
