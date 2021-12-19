@@ -160,8 +160,9 @@ def update_function_list(Functions, tmpFunctions):
     if isExisting == False:
       Functions.append(f1)
 
-def add_nodes_and_edges(CG, v_fname_dict, fname_v_dict, logFilePath):
 #add nodes & edges based on profiling result 
+def add_nodes_and_edges(CG, v_fname_dict, fname_v_dict, logFilePath):
+  covered_funcs = []
   f = open(logFilePath, "r")
   edgeSet = set([])
 
@@ -173,6 +174,11 @@ def add_nodes_and_edges(CG, v_fname_dict, fname_v_dict, logFilePath):
         edgeSet.add(line.strip())
         caller = tmpStrs[0].strip().split(":")[1]
         callee = tmpStrs[1].strip()
+
+        if caller not in covered_funcs:
+          covered_funcs.append(caller)
+        if callee not in covered_funcs:
+          covered_funcs.append(callee)
 
         caller_v = None
         callee_v = None
@@ -214,6 +220,7 @@ def add_nodes_and_edges(CG, v_fname_dict, fname_v_dict, logFilePath):
 
         if CG.has_edge(caller_v, callee_v) == False:
           CG.add_edge(caller_v, callee_v, style = "dashed")
+  return covered_funcs
 
 def extract_gcov_profiling(gcov_folder):
   Functions = []
@@ -282,7 +289,7 @@ def extract_gcov_profiling(gcov_folder):
   return Functions
 
 #update callgraph based on function call profiling information
-def update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v_dict, profiling_binary, gcov_binary, gcov_folder, seed_dir):
+def update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v_dict, profiling_binary, gcov_binary, gcov_folder, seed_dir, isFirstRun):
   logging.debug("update_callgraph starts at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
   #keep track all functions that have been dynamically covered
   covered_funcs = []
@@ -296,16 +303,17 @@ def update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v
   with open(os.devnull, 'w') as FNULL:
     sCount = 0
     for seed in os.listdir(seed_dir):
-      #only run profiling of coverage-increasing inputs
-      if ("+cov" not in seed) and ("orig" not in seed):
-        #logging.debug("Skip not +cov: %s", seed)
-        continue
-      #skip the profiled ones
-      if seed in globals.profiled_seeds:
-        #logging.debug("Skip profiled: %s", seed)
-        continue
+      if not isFirstRun:
+        #only run profiling of coverage-increasing inputs
+        if ("+cov" not in seed):
+          #logging.debug("Skip not +cov: %s", seed)
+          continue
+        #skip the profiled ones
+        if seed in globals.profiled_seeds:
+          #logging.debug("Skip profiled: %s", seed)
+          continue
 
-      globals.profiled_seeds.append(seed)
+        globals.profiled_seeds.append(seed)
 
       if os.path.isfile(os.path.join(seed_dir, seed)):
         #run profiling binary
@@ -336,7 +344,7 @@ def update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v
 
       sCount = sCount + 1
 
-  add_nodes_and_edges(CG, v_fname_dict, fname_v_dict, logFilePath)
+  covered_funcs = add_nodes_and_edges(CG, v_fname_dict, fname_v_dict, logFilePath)
 
   Functions = extract_gcov_profiling(gcov_folder)
 
@@ -355,3 +363,4 @@ def update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v
         CG.nodes[v]['bcovered_cur'] = f.bcovered
 
   logging.debug("update_callgraph ends at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+  return covered_funcs
