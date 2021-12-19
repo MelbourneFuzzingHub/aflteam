@@ -151,7 +151,7 @@ def main(binary_name, afl_binary, horsefuzz_binary, profiling_binary, gcov_binar
       #Update callgraph first     
       logging.debug("Nodes-before-update: %d", len(CG.nodes))
       logging.debug("Edges-before-update: %d", len(CG.edges))
-      covered_funcs = nxp.update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v_dict, profiling_binary, gcov_binary, gcov_folder, activeDir + "/monitor/queue")
+      nxp.update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v_dict, profiling_binary, gcov_binary, gcov_folder, activeDir + "/monitor/queue")
       logging.debug("Nodes-after-update: %d", len(CG.nodes))
       logging.debug("Edges-after-update: %d", len(CG.edges))
     
@@ -171,7 +171,7 @@ def main(binary_name, afl_binary, horsefuzz_binary, profiling_binary, gcov_binar
         dac.partition(CG, v_fname_dict, main_v, fname_src_dict, cores - 1, taskDir, False)
 
       if algorithm == "lukes":
-        lukes.partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, covered_funcs, cores - 1, taskDir)
+        lukes.partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, cores - 1, taskDir)
 
     #Write updated call graph to a file for analysis/debugging
     nx.drawing.nx_pydot.write_dot(CG, os.path.join(activeDir, "callgraph.dot"))

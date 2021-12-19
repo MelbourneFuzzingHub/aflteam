@@ -10,7 +10,7 @@ from utils import helpers
 import globals
 
 #Reference: J. A. Lukes, "Efficient Algorithm for the Partitioning of Trees," in IBM Journal of Research and Development
-def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, covered_funcs, K, out_folder):
+def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, K, out_folder):
   logging.debug("do_partitioning_lukes starts at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
   #Get minimum arborescence
   logging.debug("Running minimum_spanning_arborescence algorithm ...")
