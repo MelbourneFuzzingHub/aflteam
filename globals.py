@@ -9,7 +9,7 @@ class Function:
 
 #global variables
 VERBOSE_LEVEL = 1 #set this to a higher value to see more verbose info in aflteam.log
-                  #current max level is 3
+                  #current max level is 4
 
 #FIXME: we should not hardcode the colors list
 #this list is used to set colors for different tasks/partitions on the call graph

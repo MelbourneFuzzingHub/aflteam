@@ -9,11 +9,37 @@ import statistics
 from utils import helpers
 import globals
 
+MSA = None
+
+#get total score of all vertices in a set
+def total_score(vSet):
+  total_score = 0
+  for v in vSet:
+    total_score = total_score + MSA.nodes[v]['score']
+  return total_score
+
+'''
+Group N small tasks into k bigger tasks (N > k) in such a way that
+the total scores of functions in these big tasks are balanced.
+This function is implemented based on an algorithm that tries to
+divide an array into k subarrays that have minimum difference
+ref: https://stackoverflow.com/questions/59557159/divide-an-array-into-k-partitions-subarray-that-have-minimum-difference
+'''
+def group_tasks(arr, k):
+  result = [[] for _ in range(k)]
+  sums = [0] * k
+  for x in sorted(arr, key=total_score, reverse=True):
+    i = sums.index(min(sums))
+    sums[i] += total_score(x)
+    result[i].append(x)
+  return result
+
 #Reference: J. A. Lukes, "Efficient Algorithm for the Partitioning of Trees," in IBM Journal of Research and Development
 def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, K, out_folder):
   logging.debug("do_partitioning_lukes starts at: %s", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
   #Get minimum arborescence
   logging.debug("Running minimum_spanning_arborescence algorithm ...")
+  global MSA
   MSA = nx.minimum_spanning_arborescence(CG)
 
   total_branches = 0
@@ -47,25 +73,29 @@ def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, K, out_f
   plist = lukes.lukes_partitioning(MSA, math.ceil(total_score / K), 'score')
 
   #Divide the list into sublists
+  #plist is a list of sets
   logging.debug("Grouping " + str(len(plist)) + " partitions into " + str(K) + " tasks")
-  tasks = helpers.group_tasks(plist, K)
+  tasks = group_tasks(plist, K)
   
-  logging.debug("#partitions: %d", len(tasks))
+  logging.debug("Number of tasks: %d", len(tasks))
   tIndex = 0
   for task in tasks:
     tIndex = tIndex + 1
     fout = open(out_folder + "/task_" + str(tIndex) + ".txt" ,'w')
-    if globals.VERBOSE_LEVEL > 2:
-      logging.debug("Partition %d", tIndex)
+    
+    logging.debug("Task %d", tIndex)
 
     outputSet = set()
     #some subtask(s) might not be reachable yet (i.e., no test input can reach functions in a task)
     #if all subtasks are not reachable, bitmap coverage becomes empty and the fuzzing instance stops unexpectedly
     #to handle those cases, we add functions on the shortest path from the main function to a each subtask.
     #And by exploring those functions, the fuzzer may eventually reach subtasks that were unreachable
+
+    task_score = 0
     for subtask in task:
       pathToMainIncluded = False
       for v in subtask:
+        task_score = task_score + MSA.nodes[v]['score']
         colorIndex = (tIndex-1) % (globals.COLOR_COUNT - 1)
         MSA.nodes[v]['color'] = globals.colors[colorIndex]
         MSA.nodes[v]['fontcolor'] = globals.colors[colorIndex]
@@ -73,8 +103,8 @@ def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, K, out_f
           MSA.edges[src, dst]['color'] = globals.colors[colorIndex]
 
         functionName = v_fname_dict[v]
-        if globals.VERBOSE_LEVEL > 2:
-          logging.debug("Node: %s", functionName)
+        if globals.VERBOSE_LEVEL > 1:
+          logging.debug("Function: %s, Score: %d", functionName, MSA.nodes[v]['score'])
         
         try:
           for (srcFileName, hashId) in fname_src_dict[functionName]:
@@ -97,7 +127,8 @@ def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, K, out_f
       #output all (srcFileName, functionName) pairs for the current task
       for (srcFileName, functionName) in outputSet:
         fout.write(srcFileName + ":" + functionName + '\n')
-      
+
+    logging.debug("Total score of Task %d is %d", tIndex, task_score)
     fout.close()
 
   #write to dot file for debugging

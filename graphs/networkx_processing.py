@@ -82,7 +82,7 @@ def prune_callgraph(CG, main_v, v_fname_dict, fname_v_dict, fname_bbs_dict):
 
   for v in deleted_nodes:
     try:
-      if globals.VERBOSE_LEVEL > 1:
+      if globals.VERBOSE_LEVEL > 3:
         logging.debug("Deleted-phase-1: %s", v_fname_dict[v])
       globals.spare_functions_set.remove(v_fname_dict[v])
     except KeyError:
@@ -101,7 +101,7 @@ def prune_callgraph(CG, main_v, v_fname_dict, fname_v_dict, fname_bbs_dict):
     pass
 
   for v in deleted_nodes:
-    if globals.VERBOSE_LEVEL > 1:
+    if globals.VERBOSE_LEVEL > 3:
       logging.debug("Deleted-phase-2: %s", v_fname_dict[v])
     globals.spare_functions_set.add(v_fname_dict[v])
     remove_node(CG, v, v_fname_dict, fname_v_dict)
@@ -125,7 +125,7 @@ def prune_callgraph(CG, main_v, v_fname_dict, fname_v_dict, fname_bbs_dict):
     pass
 
   for v in deleted_nodes:
-    if globals.VERBOSE_LEVEL > 1:
+    if globals.VERBOSE_LEVEL > 3:
       logging.debug("Deleted-phase-3: %s", v_fname_dict[v])
     globals.spare_functions_set.add(v_fname_dict[v])
     remove_node(CG, v, v_fname_dict, fname_v_dict)
@@ -315,7 +315,7 @@ def update_callgraph(binary_name, pre_args, post_args, CG, v_fname_dict, fname_v
 
         globals.profiled_seeds.append(seed)
 
-      if globals.VERBOSE_LEVEL > 2:
+      if globals.VERBOSE_LEVEL > 3:
         logging.debug("isFirstRun: %s, seed to be executed: %s", isFirstRun, seed)
 
       if os.path.isfile(os.path.join(seed_dir, seed)):
