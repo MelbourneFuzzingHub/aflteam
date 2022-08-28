@@ -74,7 +74,15 @@ def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, K, out_f
 
   #do partitioning using lukes aglrithm
   logging.debug("Running lukes partitioning algorithm ...")
-  plist = lukes.lukes_partitioning(MSA, math.ceil(total_score / K), 'score')
+
+  max_size = math.ceil(total_score / K)
+  #normalize nodes' score to prevent potential NoneType errors
+  #please read this issue for more details https://github.com/MelbourneFuzzingHub/aflteam/issues/2
+  for v in MSA.nodes:
+    if MSA.nodes[v]['score'] > max_size:
+      MSA.nodes[v]['score'] = max_size
+
+  plist = lukes.lukes_partitioning(MSA, max_size, 'score')
 
   #Divide the list into sublists
   #plist is a list of sets
