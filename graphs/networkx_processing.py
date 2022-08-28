@@ -163,6 +163,10 @@ def update_function_list(Functions, tmpFunctions):
 #add nodes & edges based on profiling result 
 def add_nodes_and_edges(CG, v_fname_dict, fname_v_dict, logFilePath):
   covered_funcs = []
+
+  if not os.path.exists(logFilePath):
+    return covered_funcs
+
   f = open(logFilePath, "r")
   edgeSet = set([])
 
