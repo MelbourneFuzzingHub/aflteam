@@ -48,7 +48,7 @@ def partition(CG, main_v, v_fname_dict, fname_src_dict, fname_bbs_dict, K, out_f
     #in some rare cases, a node might not have the btotal attribute
     try:
       total_branches = total_branches + CG.nodes[v]['btotal']
-    except TypeError:
+    except KeyError:
       pass
 
   #update scores/weights
